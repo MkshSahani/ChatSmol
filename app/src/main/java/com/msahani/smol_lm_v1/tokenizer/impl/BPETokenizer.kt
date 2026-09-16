@@ -46,6 +46,10 @@ class BPETokenizer(private val context: Context, private val vocabJsonFileName: 
         return JSONObject(jsonText).toMap() as Map<String, Long>
     }
 
+    fun loadMergesFromAssets(mergeFileName: String) : List<Pair<String, String>> {
+        return listOf<Pair<String, String>>();
+    }
+
     private fun logVocab() {
         for((key, value) in this.vocabMap) {
             Log.i(TAG, "key :: $key value :: $value")
