@@ -4,6 +4,6 @@ import android.content.Context
 import org.json.JSONObject
 
 interface Tokenizer {
-    fun loadVocab(context: Context, vocabJsonPath: String): Map<String, Long>
-    fun getStringToken(tokenId: Long): String
+//    fun loadVocab(context: Context, vocabJsonPath: String): Map<String, Long>
+//    fun getStringToken(tokenId: Long): String
 }

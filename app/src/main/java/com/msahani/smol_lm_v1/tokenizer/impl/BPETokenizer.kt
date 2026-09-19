@@ -7,61 +7,61 @@ import com.msahani.smol_lm_v1.tokenizer.Tokenizer
 import org.json.JSONObject
 import java.util.stream.Gatherer
 
-class BPETokenizer(private val context: Context, private val vocabJsonFileName: String) : Tokenizer {
-    private var vocabMap: Map<String, Long>
-    private var invVocabMap: MutableMap<Long, String>
+class BPETokenizer(private val context: Context, private val vocabFileName: String, private val mergeFileName: String) : Tokenizer {
+
+
+    private lateinit var vocabMap: HashMap<String, Long>
+    private lateinit var invVocabMap: HashMap<Long, String>
+
     companion object {
-        val TAG: String = LoggerConstants.SMOLLM_LOGGER_TAG.value + "::" + BPETokenizer.Companion::class.java.simpleName
+        val TAG: String = LoggerConstants.SMOLLM_LOGGER_TAG.value + BPETokenizer.Companion::class.java.simpleName
     }
 
-    init {
-        this.vocabMap = this.loadVocab(context, vocabJsonFileName)
-        this.invVocabMap = mutableMapOf()
-        this.vocabMap.forEach { (token, id) ->
-            this.invVocabMap[id as Long] = token
+    private fun buildInvVocabMap(vocabMap: HashMap<String, Long>): HashMap<Long, String> {
+        val invVocabMapTemp: HashMap<Long, String> = HashMap<Long, String>()
+        for(key in vocabMap.keys) {
+            invVocabMapTemp[vocabMap[key] as Long] = key
         }
-        Log.i(TAG, "number of tokens :: ${this.vocabMap.size}, number of tokens in inv map :: ${this.invVocabMap.size}")
-        this.logVocab()
-    }
-
-    override fun loadVocab(
-        context: Context,
-        vocabJsonPath: String
-    ): Map<String, Long> {
-        return this.loadVocabFromAssets(
-            context,
-            vocabJsonPath
-        )
-    }
-
-    override fun getStringToken(tokenId: Long): String {
-        TODO("Not yet implemented")
+        return invVocabMapTemp
     }
 
     private fun loadVocabFromAssets(
-        context: Context,
-        vocabJsonPath: String
-    ) : Map<String, Long> {
-        val jsonText = context.assets.open(vocabJsonPath).bufferedReader().use { it.readText() }
-        return JSONObject(jsonText).toMap() as Map<String, Long>
-    }
-
-    fun loadMergesFromAssets(mergeFileName: String) : List<Pair<String, String>> {
-        return listOf<Pair<String, String>>();
-    }
-
-    private fun logVocab() {
-        for((key, value) in this.vocabMap) {
-            Log.i(TAG, "key :: $key value :: $value")
+        vocabJSONFilePath: String
+    ): HashMap<String, Long> {
+        try {
+            val json = JSONObject(this.context.assets.open(vocabJSONFilePath).bufferedReader().use { it.readText() })
+            val map = HashMap<String, Long>(json.length());
+            for(key in json.keys()) {
+                map[key] = json.getLong(key)
+            }
+            return map
+        } catch (ex: Exception) {
+            throw ex
         }
     }
+
+    private fun loadMergesFromAssets(
+        mergeFilePath: String
+    ) : List<Pair<String, String>> {
+        try {
+            val mergeFileTxtContent = this.context.assets.open(mergeFilePath).bufferedReader().use { it.readLines() }
+            return mergeFileTxtContent.filter {
+                it.isNotBlank() && !it.startsWith("#")
+            } .map(fun(line: String): Pair<String, String> {
+                val parts = line.trim().split(Regex("\\s+"))
+                require(parts.size == 2) { "Malformed merge line: '$line'" }
+                return parts[0] to parts[1]
+            })
+        } catch (ex: Exception) {
+            throw ex
+        }
+    }
+
+    private fun bpe(token: String): List<String> {
+        val symbols = token.map { it.toString() }.toMutableList()
+
+    }
+
 }
 
-fun JSONObject.toMap(): Map<String, Any?> {
-    val map = mutableMapOf<String, Any?>()
-    keys().forEach { key ->
-        map[key] = get(key)
-    }
-    return map
-}
 
