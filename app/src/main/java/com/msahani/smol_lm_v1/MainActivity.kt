@@ -43,6 +43,7 @@ fun Greeting(context: Context, name: String, modifier: Modifier = Modifier) {
         ModelConstants.MODEL_VOCAB_FILE_NAME.value,
         ModelConstants.MODEL_VOCAB_MERGE_FILE_NAME.value
     )
+    bpeTokenizer.encode("hello this is mukesh sahani!!!!")
     Text(text = "Smol-LM-Inference", modifier = modifier)
 
 }

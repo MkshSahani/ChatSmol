@@ -13,6 +13,9 @@ class BPETokenizer(private val context: Context, private val vocabFileName: Stri
     private lateinit var vocabMap: HashMap<String, Long>
     private lateinit var invVocabMap: HashMap<Long, String>
     private lateinit var mergeRules: List<Pair<String, String>>
+    private val pretokenizeRegex = Regex(
+        "'s|'t|'re|'ve|'m|'ll|'d| ?\\p{L}+| ?\\p{N}+| ?[^\\s\\p{L}\\p{N}]+|\\s+(?!\\S)|\\s+"
+    )
     companion object {
         val TAG: String = LoggerConstants.SMOLLM_LOGGER_TAG.value + BPETokenizer.Companion::class.java.simpleName
     }
@@ -26,6 +29,24 @@ class BPETokenizer(private val context: Context, private val vocabFileName: Stri
         } catch (ex: Exception) {
             Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "Error :: ${ex.message}")
         }
+    }
+
+    fun encode(text: String) {
+        val tokens: List<String> = this.splitKeepingDelimiter(text, this.pretokenizeRegex)
+        Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "tokens :: ${tokens}")
+    }
+
+    private fun splitKeepingDelimiter(text: String, delimiterRegEx: Regex) : List<String> {
+        val result = mutableListOf<String>()
+        var lastEnd = 0
+        for(match in delimiterRegEx.findAll(text)) {
+            if(match.range.first > lastEnd) {
+                result.add(text.substring(lastEnd, match.range.first))
+            }
+            result.add(match.value)
+            lastEnd = match.range.last + 1
+        }
+        return result
     }
 
     private fun buildInvVocabMap(vocabMap: HashMap<String, Long>): HashMap<Long, String> {
