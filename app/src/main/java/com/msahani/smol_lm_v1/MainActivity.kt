@@ -38,7 +38,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(context: Context, name: String, modifier: Modifier = Modifier) {
 
-    val bpeTokenizer: BPETokenizer = BPETokenizer(context, ModelConstants.MODEL_VOCAB_FILE_NAME.value)
+    val bpeTokenizer: BPETokenizer = BPETokenizer(
+        context,
+        ModelConstants.MODEL_VOCAB_FILE_NAME.value,
+        ModelConstants.MODEL_VOCAB_MERGE_FILE_NAME.value
+    )
     Text(text = "Smol-LM-Inference", modifier = modifier)
 
 }

@@ -12,9 +12,20 @@ class BPETokenizer(private val context: Context, private val vocabFileName: Stri
 
     private lateinit var vocabMap: HashMap<String, Long>
     private lateinit var invVocabMap: HashMap<Long, String>
-
+    private lateinit var mergeRules: List<Pair<String, String>>
     companion object {
         val TAG: String = LoggerConstants.SMOLLM_LOGGER_TAG.value + BPETokenizer.Companion::class.java.simpleName
+    }
+
+    init {
+        try {
+            this.vocabMap = this.loadVocabFromAssets(vocabFileName)
+            this.invVocabMap = this.buildInvVocabMap(this.vocabMap)
+            this.mergeRules = this.loadMergesFromAssets(this.mergeFileName)
+            Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "vocab size :: ${vocabMap.size}, inv vocab size :: ${invVocabMap.size}, merge rules length :: ${mergeRules.size}")
+        } catch (ex: Exception) {
+            Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "Error :: ${ex.message}")
+        }
     }
 
     private fun buildInvVocabMap(vocabMap: HashMap<String, Long>): HashMap<Long, String> {
@@ -57,10 +68,6 @@ class BPETokenizer(private val context: Context, private val vocabFileName: Stri
         }
     }
 
-    private fun bpe(token: String): List<String> {
-        val symbols = token.map { it.toString() }.toMutableList()
-
-    }
 
 }
 
