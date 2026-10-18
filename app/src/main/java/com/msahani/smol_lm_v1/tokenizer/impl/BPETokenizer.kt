@@ -26,6 +26,9 @@ import com.msahani.smol_lm_v1.constants.tokenizer.SMOLLMTokenizerConstants.UNK_T
 import com.msahani.smol_lm_v1.tokenizer.Tokenizer
 import org.jetbrains.annotations.Async
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
+import java.nio.charset.CodingErrorAction
 import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
 import java.util.stream.Gatherer
@@ -98,6 +101,49 @@ class BPETokenizer(private val context: Context, private val vocabFileName: Stri
             return result.toLongArray()
         } catch (ex: Exception) {
             Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "Error while encoding text. Error :: ${ex.message}")
+            throw ex
+        }
+    }
+
+    fun decode(tokenIds: LongArray): String {
+        try {
+            val result = StringBuilder()
+            val byteBuffer = ByteArrayOutputStream()
+            fun flushBytes() {
+                if (byteBuffer.size() == 0) return
+                val bytes = byteBuffer.toByteArray()
+                val decoded = StandardCharsets.UTF_8
+                    .newDecoder()
+                    .onMalformedInput(/* newAction = */ CodingErrorAction.REPLACE)
+                    .onUnmappableCharacter(CodingErrorAction.REPLACE)
+                    .decode(ByteBuffer.wrap(bytes))
+                result.append(decoded)
+                byteBuffer.reset()
+            }
+            for (longId in tokenIds) {
+                require(longId in 0..Int.MAX_VALUE.toLong()) {
+                    "Invalid token ID: $longId"
+                }
+                val token = this.invVocab[longId]
+                    ?: error("Unknown token ID: $longId")
+                if (token in this.SPECIAL_TOKEN_LIST) {
+                    flushBytes()
+                    result.append(token)
+                    continue
+                }
+                for (ch in token) {
+                    val byteValue = byteDecoder[ch]
+                        ?: error(
+                            "Character U+%04X is not in the byte decoder"
+                                .format(ch.code)
+                        )
+                    byteBuffer.write(byteValue)
+                }
+            }
+            flushBytes()
+            return result.toString()
+        } catch (ex: Exception) {
+            Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "Error while decoding token ids. Error :: ${ex.message}")
             throw ex
         }
     }

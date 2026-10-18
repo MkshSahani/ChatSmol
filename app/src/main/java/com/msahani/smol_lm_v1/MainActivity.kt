@@ -45,11 +45,13 @@ fun Greeting(context: Context, name: String, modifier: Modifier = Modifier) {
         ModelConstants.MODEL_VOCAB_FILE_NAME.value,
         ModelConstants.MODEL_VOCAB_MERGE_FILE_NAME.value
     )
-    val inputIds = bpeTokenizer.encode("thisissomerandomcodeyoushouldencode.", false)
+    val inputIds = bpeTokenizer.encode("<|im_start|> my name is msahai. tell me about smol-lm-135M <|im_end|>", false)
     Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "input ids :: ${inputIds}")
     for(inputId in inputIds) {
         Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "input id :: $inputId")
     }
+    val decodedString = bpeTokenizer.decode(inputIds)
+    Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "decode str :: $decodedString")
     Text(text = "Smol-LM-Inference", modifier = modifier)
 
 }
