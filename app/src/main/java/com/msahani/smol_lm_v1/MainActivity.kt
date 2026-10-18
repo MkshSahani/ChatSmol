@@ -2,6 +2,7 @@ package com.msahani.smol_lm_v1
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -12,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.msahani.smol_lm_v1.constants.logger.LoggerConstants
 import com.msahani.smol_lm_v1.constants.model.ModelConstants
 import com.msahani.smol_lm_v1.tokenizer.Tokenizer
 import com.msahani.smol_lm_v1.tokenizer.impl.BPETokenizer
@@ -43,7 +45,11 @@ fun Greeting(context: Context, name: String, modifier: Modifier = Modifier) {
         ModelConstants.MODEL_VOCAB_FILE_NAME.value,
         ModelConstants.MODEL_VOCAB_MERGE_FILE_NAME.value
     )
-    bpeTokenizer.encode("hello this is mukesh sahani!!!!")
+    val inputIds = bpeTokenizer.encode("thisissomerandomcodeyoushouldencode.", false)
+    Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "input ids :: ${inputIds}")
+    for(inputId in inputIds) {
+        Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "input id :: $inputId")
+    }
     Text(text = "Smol-LM-Inference", modifier = modifier)
 
 }
