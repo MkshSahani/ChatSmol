@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.msahani.smol_lm_v1.constants.logger.LoggerConstants
 import com.msahani.smol_lm_v1.constants.model.ModelConstants
+import com.msahani.smol_lm_v1.model.impl.SMOLLMInferenceEngine
 import com.msahani.smol_lm_v1.tokenizer.Tokenizer
 import com.msahani.smol_lm_v1.tokenizer.impl.BPETokenizer
 import com.msahani.smol_lm_v1.ui.theme.SMOLLMv1Theme
@@ -45,13 +46,15 @@ fun Greeting(context: Context, name: String, modifier: Modifier = Modifier) {
         ModelConstants.MODEL_VOCAB_FILE_NAME.value,
         ModelConstants.MODEL_VOCAB_MERGE_FILE_NAME.value
     )
-    val inputIds = bpeTokenizer.encode("<|im_start|> my name is msahai. tell me about smol-lm-135M <|im_end|>", false)
+    val inputIds = bpeTokenizer.encode("<|im_start|> my name is msahani. tell me about smol-lm-135M <|im_end|>", false)
     Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "input ids :: ${inputIds}")
     for(inputId in inputIds) {
         Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "input id :: $inputId")
     }
     val decodedString = bpeTokenizer.decode(inputIds)
     Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "decode str :: $decodedString")
+    val smolLMInferenceEngine: SMOLLMInferenceEngine = SMOLLMInferenceEngine(context, ModelConstants.MODEL_FILE_PATH.value)
+    smolLMInferenceEngine.close()
     Text(text = "Smol-LM-Inference", modifier = modifier)
 
 }
