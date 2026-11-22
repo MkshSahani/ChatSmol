@@ -6,7 +6,7 @@ interface LLMInferenceEngine {
         promptTokenIDS: LongArray,
         maxNumberOfTokens: Int,
         eosTokenID: Int
-    ) : MutableList<String>
+    ) : LongArray
 
     fun runInference(
         promptTokenIDS: LongArray,
