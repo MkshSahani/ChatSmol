@@ -47,7 +47,7 @@ fun Greeting(context: Context, name: String, modifier: Modifier = Modifier) {
         ModelConstants.MODEL_VOCAB_FILE_NAME.value,
         ModelConstants.MODEL_VOCAB_MERGE_FILE_NAME.value
     )
-    val inputIds = bpeTokenizer.encode("<|im_start|> my name is mukesh sahani. tell me about smol-lm-135M <|im_end|>", false)
+    val inputIds = bpeTokenizer.encode("<|im_start|>user\n who is donald trump ? <|im_end|>", false)
     Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "input ids :: ${inputIds}")
     for(inputId in inputIds) {
         Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "input id :: $inputId")

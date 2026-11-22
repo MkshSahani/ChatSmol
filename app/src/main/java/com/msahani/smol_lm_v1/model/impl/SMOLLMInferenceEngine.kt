@@ -14,6 +14,7 @@ import com.msahani.smol_lm_v1.constants.tokenizer.SMOLLMTokenizerConstants
 import com.msahani.smol_lm_v1.model.LLMInferenceEngine
 import com.msahani.smol_lm_v1.tokenizer.impl.BPETokenizer
 import kotlinx.coroutines.newSingleThreadContext
+import java.io.File
 import java.nio.FloatBuffer
 import java.nio.LongBuffer
 
@@ -203,6 +204,24 @@ class SMOLLMInferenceEngine(val context: Context, val onnxModelPath: String) : L
         }
     }
 
+    fun copyModelFromAssets(
+        context: Context,
+        modelName: String
+    ): String {
+
+        val modelFile = File(context.filesDir, modelName)
+
+        if (!modelFile.exists()) {
+            context.assets.open(modelName).use { input ->
+                modelFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+        }
+
+        return modelFile.absolutePath
+    }
+
     private fun openOrtSession(context: Context, onnxModelPath: String) : OrtSession  {
         try {
             val onnxModelBytes = context.applicationContext.assets.open(onnxModelPath).use { it.readBytes() }
@@ -211,6 +230,17 @@ class SMOLLMInferenceEngine(val context: Context, val onnxModelPath: String) : L
                 OrtSession.SessionOptions()
             )
             return smolLMONNXSession
+//            val modelFileAbsolutePath = copyModelFromAssets(
+//                context,
+//                onnxModelPath
+//            )
+//            Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "model file absolute path :: ${modelFileAbsolutePath}")
+//            val smolLMOnnxSession = smolLMONNXEnvironment.createSession(
+//                modelFileAbsolutePath,
+//                OrtSession.SessionOptions()
+//            )
+//            Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "smol-lm-onnx-session :: ${smolLMONNXSession}")
+//            return smolLMONNXSession
         } catch (ex: Exception) {
             Log.i(LoggerConstants.SMOLLM_LOGGER_TAG.value, "Error while opening ort session. Error :: ${ex.message}")
             throw Exception("Error while opening ort session. Error :: ${ex.message}")
